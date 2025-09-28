@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+
+{% block title %}NeoForum - Главная страница{% endblock %}
+
+{% block content %}
+<!-- Герой секция -->
+<div class="row align-items-center mb-5">
+    <div class="col-lg-6">
+        <h1 class="display-3 gradient-text fw-bold mb-3">Добро пожаловать в <span class="text-3d">NEOFORUM</span></h1>
+        <p class="lead mb-4">Современная платформа для общения, обмена знаниями и вдохновения. Присоединяйтесь к нашему сообществу!</p>
+        <div class="d-flex gap-3">
+            <a href="{% url 'post_create' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus me-2"></i>Создать пост
+            </a>
+            <a href="{% url 'post_list' %}" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-explore me-2"></i>Исследовать
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-6 text-center">
+        <div class="floating">
+            <i class="fas fa-comments" style="font-size: 200px; background: linear-gradient(45deg, #00f3ff, #ff00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Статистика -->
+<div class="row mb-5">
+    <div class="col-md-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-file-alt fa-3x gradient-text mb-3"></i>
+                <h3 class="neon-text">{{ recent_posts|length }}+</h3>
+                <p class="mb-0">Активных постов</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-tags fa-3x gradient-text mb-3"></i>
+                <h3 class="neon-text">{{ categories|length }}+</h3>
+                <p class="mb-0">Категорий</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-users fa-3x gradient-text mb-3"></i>
+                <h3 class="neon-text">∞</h3>
+                <p class="mb-0">Участников</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="gradient-text"><i class="fas fa-bolt me-2"></i>Свежие посты</h2>
+            <a href="{% url 'post_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Новый пост
+            </a>
+        </div>
+
+        {% if recent_posts %}
+            {% for post in recent_posts %}
+            <div class="card post-card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title mb-0">
+                            <a href="{% url 'post_detail' post.pk %}" class="text-decoration-none neon-text">
+                                {{ post.title }}
+                            </a>
+                        </h5>
+                        <span class="badge" style="background: var(--secondary-gradient);">{{ post.category.name }}</span>
+                    </div>
+
+                    <p class="card-text">{{ post.content|truncatewords:40 }}</p>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2"
+                                 style="width: 30px; height: 30px;">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                            <small class="text-muted">{{ post.author_name }}</small>
+                        </div>
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>{{ post.created_at|date:"d.m.Y H:i" }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="text-center mt-4">
+                <a href="{% url 'post_list' %}" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-arrow-right me-2"></i>Смотреть все посты
+                </a>
+            </div>
+        {% else %}
+            <div class="card text-center">
+                <div class="card-body py-5">
+                    <i class="fas fa-inbox fa-4x gradient-text mb-3"></i>
+                    <h4 class="neon-text">Пока нет постов</h4>
+                    <p class="mb-4">Будьте первым, кто поделится своими мыслями!</p>
+                    <a href="{% url 'post_create' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus me-2"></i>Создать первый пост
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Категории -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0 gradient-text">
+                    <i class="fas fa-tags me-2"></i>Популярные категории
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if categories %}
+                    <div class="list-group list-group-flush">
+                        {% for category in categories %}
+                        <a href="{% url 'category_detail' category.pk %}"
+                           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                           style="background: transparent; border-color: rgba(255, 255, 255, 0.1); color: #fff;">
+                            {{ category.name }}
+                            <span class="badge rounded-pill" style="background: var(--primary-gradient);">
+                                {{ category.post_set.count }}
+                            </span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{% url 'category_list' %}" class="btn btn-sm btn-outline-light">
+                            Все категории <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">Категории пока не созданы</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Быстрые действия -->
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="gradient-text mb-3">Быстрые действия</h5>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'post_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Новый пост
+                    </a>
+                    <a href="{% url 'post_list' %}" class="btn btn-outline-light">
+                        <i class="fas fa-search me-2"></i>Поиск постов
+                    </a>
+                    <a href="{% url 'category_list' %}" class="btn btn-outline-light">
+                        <i class="fas fa-compass me-2"></i>Обзор категорий
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Цитата -->
+        <div class="card mt-4">
+            <div class="card-body text-center">
+                <i class="fas fa-quote-left fa-2x gradient-text mb-3"></i>
+                <p class="fst-italic">"Знания должны быть доступны каждому. Делитесь, учитесь, вдохновляйтесь!"</p>
+                <small class="text-muted">— Сообщество NeoForum</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

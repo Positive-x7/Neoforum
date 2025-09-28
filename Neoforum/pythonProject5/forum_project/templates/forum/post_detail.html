@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }} - NeoForum{% endblock %}
+
+{% block content %}
+<!-- Хлебные крошки -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 15px;">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-white">Главная</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'post_list' %}" class="text-white">Посты</a></li>
+        <li class="breadcrumb-item active neon-text">{{ post.title|truncatewords:3 }}</li>
+    </ol>
+</nav>
+
+<!-- Пост -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <h1 class="card-title gradient-text">{{ post.title }}</h1>
+            <span class="badge fs-6" style="background: var(--secondary-gradient);">{{ post.category.name }}</span>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center">
+                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3"
+                     style="width: 50px; height: 50px;">
+                    <i class="fas fa-user fa-lg text-white"></i>
+                </div>
+                <div>
+                    <h6 class="mb-0 neon-text">{{ post.author_name }}</h6>
+                    <small class="text-muted">
+                        <i class="fas fa-clock me-1"></i>{{ post.created_at|date:"d.m.Y H:i" }}
+                    </small>
+                </div>
+            </div>
+            {% if post.updated_at != post.created_at %}
+            <small class="text-muted">
+                <i class="fas fa-edit me-1"></i>Обновлено: {{ post.updated_at|date:"d.m.Y H:i" }}
+            </small>
+            {% endif %}
+        </div>
+
+        <div class="post-content fs-5" style="line-height: 1.8;">
+            {{ post.content|linebreaks }}
+        </div>
+
+        <div class="mt-4 pt-3 border-top" style="border-color: rgba(255, 255, 255, 0.1) !important;">
+            <a href="{% url 'post_update' post.pk %}" class="btn btn-outline-primary me-2">
+                <i class="fas fa-edit me-1"></i>Редактировать
+            </a>
+            <a href="{% url 'post_delete' post.pk %}" class="btn btn-outline-danger">
+                <i class="fas fa-trash me-1"></i>Удалить
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Комментарии -->
+<div class="card">
+    <div class="card-header">
+        <h4 class="mb-0 gradient-text">
+            <i class="fas fa-comments me-2"></i>Комментарии
+            <span class="badge bg-primary ms-2">{{ comments.count }}</span>
+        </h4>
+    </div>
+
+    <div class="card-body">
+        {% if comments %}
+            {% for comment in comments %}
+            <div class="border-bottom pb-3 mb-3" style="border-color: rgba(255, 255, 255, 0.1) !important;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-2"
+                             style="width: 35px; height: 35px;">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                        <strong class="neon-text">{{ comment.author_name }}</strong>
+                    </div>
+                    <small class="text-muted">{{ comment.created_at|date:"d.m.Y H:i" }}</small>
+                </div>
+                <p class="mb-0 fs-6">{{ comment.content|linebreaks }}</p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-comment-slash fa-3x gradient-text mb-3"></i>
+                <h5 class="neon-text">Пока нет комментариев</h5>
+                <p class="text-muted">Будьте первым, кто оставит комментарий!</p>
+            </div>
+        {% endif %}
+
+        <!-- Форма комментария -->
+        <div class="mt-4 pt-3" style="border-top: 1px solid rgba(255, 255, 255, 0.1);">
+            <h5 class="gradient-text mb-3">
+                <i class="fas fa-pen me-2"></i>Добавить комментарий
+            </h5>
+            <form method="post" action="{% url 'add_comment' post.pk %}">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ comment_form.author_name }}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    {{ comment_form.content }}
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane me-1"></i>Отправить комментарий
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Навигация -->
+<div class="d-flex justify-content-between mt-4">
+    <a href="{% url 'post_list' %}" class="btn btn-outline-light">
+        <i class="fas fa-arrow-left me-1"></i>Назад к списку постов
+    </a>
+    <a href="{% url 'home' %}" class="btn btn-outline-primary">
+        <i class="fas fa-home me-1"></i>На главную
+    </a>
+</div>
+{% endblock %}

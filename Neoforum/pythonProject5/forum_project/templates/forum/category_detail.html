@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ category.name }} - Форум{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1>{{ category.name }}</h1>
+        {% if category.description %}
+        <p class="lead">{{ category.description }}</p>
+        {% endif %}
+    </div>
+    <a href="{% url 'category_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Все категории
+    </a>
+</div>
+
+{% if posts %}
+    {% for post in posts %}
+    <div class="card post-card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">
+                <a href="{% url 'post_detail' post.pk %}" class="text-decoration-none">
+                    {{ post.title }}
+                </a>
+            </h5>
+            <p class="card-text">{{ post.content|truncatewords:30 }}</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                    <i class="fas fa-user me-1"></i>{{ post.author.username }}
+                    <i class="fas fa-clock ms-3 me-1"></i>{{ post.created_at|date:"d.m.Y H:i" }}
+                </small>
+                <span class="badge bg-secondary">{{ post.comments.count }} комментариев</span>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="alert alert-info text-center">
+        <h4>В этой категории пока нет постов</h4>
+        <p>Будьте первым, кто создаст пост в этой категории!</p>
+        {% if user.is_authenticated %}
+        <a href="{% url 'post_create' %}" class="btn btn-primary">Создать пост</a>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}
